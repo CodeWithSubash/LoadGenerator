@@ -36,7 +36,7 @@ namespace mParticle.LoadGenerator
                 return null;
             }
         }
-        
+
         internal static Config ParseArguments(string argumentsText)
         {
             bool success = true;
