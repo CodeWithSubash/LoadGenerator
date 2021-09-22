@@ -56,3 +56,10 @@ Create HttpClient object as a Singleton, as we don't need to create the instance
 Use DefaultRequestHeaders for headers that are common to all requests
 Any other request-specific headers are put on HttpRequestMessage
 If we are not wanting to use async, using .Result will force the code to execute synchronously
+
+Using Log4Net DESIGN CHOICES:
+Using Microsoft recommended one of the third-party logger frameworks, Log4Net
+Using a simplest approach for logging, directly forwarding all logs to trusted log4net library
+Static constructor will take care of configuration, no need to configure in every projects/library
+All logging logic is encapsulated in one class, log4net can be easily replaced by any other library, if needed
+

@@ -12,7 +12,7 @@ namespace mParticle.LoadGenerator.Models
         // Overriding toString to be able to print out the object in a readable way
         public override string ToString()
         {
-            return $"Name: {Name}, Date: {Date.ToString("yyyy-MM-dd hh:mm:ss")}, Requests Sent: {Requests_Sent}";
+            return $"[Name: {Name}, Date: {Date.ToString("yyyy-MM-dd hh:mm:ss")}, Requests Sent: {Requests_Sent}]";
         }
     }
 }

@@ -1,12 +1,13 @@
-﻿using mParticle.LoadGenerator.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System;
+using System.Threading.Tasks;
+
+using mParticle.LoadGenerator.Models;
 
 namespace mParticle.LoadGenerator
 {
     public interface IService
     {
-        public ResponseData SendRequest(RequestData requestData);
+        public string SendRequest(RequestData requestData);
+        public Task<string> SendRequestAsync(RequestData requestData);
     }
 }

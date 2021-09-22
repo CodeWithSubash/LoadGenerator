@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
+
+using mParticle.Core;
 using mParticle.LoadGenerator.Models;
 using Newtonsoft.Json;
 
@@ -11,10 +11,12 @@ namespace mParticle.LoadGenerator
     {
         public static void Main(string[] args)
         {
+            Logger.LogInfo($"LoadGenerator App started at {DateTime.UtcNow}");
+
             // Parse config file, if provided, else read the default one
             if (!ConfigParser.TryParse(args, out Config config))
             {
-                Console.WriteLine("Failed to parse configuration.");
+                Logger.LogError("Failed to parse configuration.");
                 return;
             }
 
@@ -23,20 +25,21 @@ namespace mParticle.LoadGenerator
                 //Get the Load Generator service created based on the config
                 var awsService = new AwsLoadGeneratorService(config);
 
-                // Initial Work: Using synchronous call
-                // ResponseData responseData = awsService.SendRequest(DataFactory.GenerateMockData());
+                // Initial Work: PoC using synchronous call
+                //var content1 = awsService.SendRequest(DataFactory.GenerateMockData());
+                //ResponseData responseData1 = JsonConvert.DeserializeObject<ResponseData>(content1);
 
-                // Improvised Work: Using Asynchronous call
-                var result = awsService.SendRequestAsync(DataFactory.GenerateMockData());
-                ResponseData responseData = JsonConvert.DeserializeObject<ResponseData>(result.Result);
+                var result2 = awsService.SendRequestAsync(DataFactory.GenerateMockData());
+                var content2 = result2.Result;
+                Logger.Debug($"RESULT: [{content2}]");
+                ResponseData responseData2 = JsonConvert.DeserializeObject<ResponseData>(content2);
 
-                Console.WriteLine(responseData);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error while sending the http request. Message: {ex.Message}");
+                Logger.LogError("Error while sending the http request", ex);
             }
-            Console.ReadLine();
+            Logger.LogInfo($"LoadGenerator App ended at {DateTime.UtcNow}");
         }
     }
 }

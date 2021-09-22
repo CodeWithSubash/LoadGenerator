@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 
+using mParticle.Core;
+
 namespace mParticle.LoadGenerator
 {
     /// <summary>
@@ -32,7 +34,7 @@ namespace mParticle.LoadGenerator
             }
             catch (Exception argumentsException)
             {
-                Console.WriteLine($"Input arguments could not be processed: {argumentsException.Message}");
+                Logger.LogError("Input arguments could not be processed", argumentsException);
                 return null;
             }
         }
@@ -48,7 +50,7 @@ namespace mParticle.LoadGenerator
             }
             catch (Exception jsonException)
             {
-                Console.WriteLine($"Input arguments could not be interpreted as JSON: {jsonException.Message}");
+                Logger.LogError("Input arguments could not be interpreted as JSON", jsonException);
                 return null;
             }
 
@@ -64,7 +66,7 @@ namespace mParticle.LoadGenerator
         {
             if (argument == null || argument == "")
             {
-                Console.WriteLine($"Must specify a nonempty value for {argumentName}.");
+                Logger.LogWarning($"Must specify a nonempty value for {argumentName}.");
                 success = false;
             }
         }
@@ -73,7 +75,7 @@ namespace mParticle.LoadGenerator
         {
             if (argument == 0)
             {
-                Console.WriteLine($"Must specify a nonzero value for {argumentName}.");
+                Logger.LogWarning($"Must specify a nonzero value for {argumentName}.");
                 success = false;
             }
         }

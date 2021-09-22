@@ -11,6 +11,7 @@ namespace mParticle.LoadGenerator
             string configFile = CONFIG_FILE;
             if (configArgs.Length > 0)
             {
+                Logger.LogInfo($"Configuration File received. FileName: {configArgs[0]}");
                 configFile = configArgs[0];
             }
 

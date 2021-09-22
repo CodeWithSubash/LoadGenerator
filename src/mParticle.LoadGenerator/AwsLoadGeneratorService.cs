@@ -25,52 +25,54 @@ namespace mParticle.LoadGenerator
         }
 
 
-        public async Task<string> SendRequestAsync(RequestData request)
+        public async Task<string> SendRequestAsync(RequestData requestData)
         {
             try
             {
-                HttpResponseMessage response = await httpClient.PostAsync(httpClient.BaseAddress, GetSerializedContent(request));
+                HttpResponseMessage response = await httpClient.PostAsync(httpClient.BaseAddress, GetSerializedContent(requestData));
+                Logger.Debug($"REQUEST: {requestData}");
                 if (response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"Successful response received for request to AWS API: '{httpClient.BaseAddress}'");
+                    Logger.Debug($"Successful response received for request to AWS API: '{httpClient.BaseAddress}'");
                     return await response.Content.ReadAsStringAsync();
                 }
                 else
                 {
-                    Console.WriteLine($"Unable to receive a success response from AWS API. StatusCode: '{(int)response?.StatusCode}'");
+                    Logger.LogWarning($"Unable to receive a success response from AWS API. StatusCode: '{(int)response?.StatusCode}'");
                 }
 
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error while sending the http request. Message: {ex.Message}");
+                Logger.LogError("Error while sending the http request.", ex);
             }
             return null;
         }
 
 
-        public ResponseData SendRequest(RequestData request)
+        public string SendRequest(RequestData requestData)
         {
-            ResponseData responseData = null;
             try
             {
-                var response = httpClient.PostAsync(httpClient.BaseAddress, GetSerializedContent(request));
+                var response = httpClient.PostAsync(httpClient.BaseAddress, GetSerializedContent(requestData));
+                Logger.Debug($"REQUEST: {requestData}");
                 if (response != null && response.Result.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"Successful response received for request to AWS API: '{httpClient.BaseAddress}'");
+                    Logger.Debug($"Successful response received for request to AWS API: '{httpClient.BaseAddress}'");
                     var content = response.Result.Content.ReadAsStringAsync().Result;
-                    responseData = JsonConvert.DeserializeObject<ResponseData>(content);
+                    Logger.Debug($"RESPONSE: [{content}]");
+                    return content;
                 }
                 else
                 {
-                    Console.WriteLine($"Unable to receive a success response from AWS API. StatusCode: '{(int)response?.Status}'");
+                    Logger.LogWarning($"Unable to receive a success response from AWS API. StatusCode: '{(int)response?.Status}'");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error while sending the http request. Message: {ex.Message}");
+                Logger.LogError("Error while sending the http request.", ex);
             }
-            return responseData;
+            return null;
         }
 
         #region Private Helper methods
