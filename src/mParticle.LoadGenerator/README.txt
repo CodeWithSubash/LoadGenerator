@@ -63,3 +63,30 @@ Using a simplest approach for logging, directly forwarding all logs to trusted l
 Static constructor will take care of configuration, no need to configure in every projects/library
 All logging logic is encapsulated in one class, log4net can be easily replaced by any other library, if needed
 
+OBSERVATIONS on RPS:
+(1) 10-12 RPS (Very Low)
+-- Remove the return content code
+(2) TaskCanceledException (See exception1 below) [Set the higher timeout i.e. 30secs]
+(3) 80 RPS (Implemented with Thread.Sleep(10) between each requests)
+(4) 110+ RPS 99% success 110-120 RPS (Use Thread.Sleep(7))
+(5) 140+ RPS 90% Success, 10% Failure (Use Thread.Sleep(5)) - See Exception2
+(6) 140+ RPS 10% Success, 90% Failure (No Thread or, Thread.Sleep(1)) - See Exception2
+
+
+OBSERVED EXCEPTIONS:
+Exception1:
+System.Threading.Tasks.TaskCanceledException: The operation was canceled.
+ ---> System.IO.IOException: Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..
+ ---> System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
+   --- End of inner exception stack trace ---
+
+Exception2:
+System.Net.Http.HttpRequestException: No connection could be made because the target machine actively refused it.
+ ---> System.Net.Sockets.SocketException (10061): No connection could be made because the target machine actively refused it.
+   at System.Net.Http.ConnectHelper.ConnectAsync(String host, Int32 port, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+
+NEWER APPROACH
+On exception2, it is likely because the server has a full 'backlog'. So, we can perform some retry logic
+
+
