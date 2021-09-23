@@ -35,23 +35,23 @@ namespace mParticle.LoadGenerator
             {
                 HttpResponseMessage response = await httpClient.PostAsync(httpClient.BaseAddress, GetSerializedContent(requestData));
                 HttpStatusCode statusCode = response.StatusCode;
-                Logger.LogInfo($"{statusCode} ({(int)statusCode})");
                 if (response.IsSuccessStatusCode)
                 {
-                    Logger.Debug($"Response Success from API: '{httpClient.BaseAddress}'. Status: {statusCode} ({(int)statusCode})");
+                    Logger.LogInfo($"Success. Status: {statusCode} ({(int)statusCode})");
+                    // NOTE: We are not concerned about the response message here
                     return await response.Content.ReadAsStringAsync();
                 }
                 else
                 {
+                    Logger.LogInfo($"Failure. Status: {statusCode} ({(int)statusCode})");
                     // Control the server overwhelming from newer requests
-                    if(statusCode == HttpStatusCode.TooManyRequests)
+                    if (statusCode == HttpStatusCode.TooManyRequests)
                     {
                         PerformExponentialBackoff();
                     }
-                    Logger.Debug($"Response Failed from API: '{httpClient.BaseAddress}'. Reason: {statusCode} ({(int)statusCode})");
                 }
             }
-            catch(HttpRequestException requestException)
+            catch (HttpRequestException requestException)
             {
                 Logger.LogError("HttpClient Error", requestException);
                 PerformExponentialBackoff();
@@ -60,7 +60,7 @@ namespace mParticle.LoadGenerator
             {
                 Logger.LogError("Error while sending the http request.", exception);
             }
-            return null;
+            return string.Empty;
         }
 
 
@@ -100,7 +100,7 @@ namespace mParticle.LoadGenerator
         // Ref: https://docs.aws.amazon.com/general/latest/gr/api-retries.html
         private void PerformExponentialBackoff()
         {
-            Thread.Sleep(10);
+            Thread.Sleep(5);
         }
         #endregion
     }

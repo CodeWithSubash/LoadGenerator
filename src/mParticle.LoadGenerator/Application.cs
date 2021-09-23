@@ -1,11 +1,11 @@
 ﻿using System;
-
-using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading;
 
 using mParticle.Core;
 using mParticle.LoadGenerator.Models;
-using System.Threading;
-using System.Threading.Tasks;
+
 
 namespace mParticle.LoadGenerator
 {
@@ -20,11 +20,10 @@ namespace mParticle.LoadGenerator
 
                 // Limiting the program to run for an Hour
                 // TODO: This can be easily configurable as the argument option to the application 
-                DateTime endTime = DateTime.Now.AddHours(1);
-                while (DateTime.Now < endTime)
+                DateTime appEndTime = DateTime.Now.AddHours(1);
+                while (DateTime.Now < appEndTime)
                 {
-                    int currentRPS = ExecuteOperationPerSecond(awsService);
-                    Logger.LogInfo($"Target RPS: {config.TargetRPS}, Current RPS: {currentRPS}");
+                    ExecuteOperationPerSecond(awsService, config.TargetRPS);
                 }
             }
             catch (Exception exception)
@@ -35,28 +34,45 @@ namespace mParticle.LoadGenerator
 
         #region Private Methods
 
-        private static int ExecuteOperationPerSecond(AwsLoadGeneratorService awsService)
+        private static void ExecuteOperationPerSecond(AwsLoadGeneratorService awsService, uint targetRPS)
         {
             int currentRPS = 0;
-            DateTime endTime = DateTime.Now.AddSeconds(1);
-            while (DateTime.Now < endTime)
+            DateTime oneSecond = DateTime.Now.AddSeconds(1);
+            // Dictionary<string, int> statusCodeDictionary = new Dictionary<string, int>();
+            while (DateTime.Now < oneSecond)
             {
                 currentRPS++;
                 PerformASyncOperation(awsService);
-                // NOTE: The good tradeoff can be done by making some milliseconds of delay in the request calls
+                // Disabling for now as it introduced lots of lagging 
+                //if(!statusCodeDictionary.ContainsKey(responseCode))
+                //{
+                //    statusCodeDictionary.Add(responseCode, 0);
+                //}
+                //statusCodeDictionary[responseCode] = 1 + statusCodeDictionary[responseCode];
+                
+                // NOTE: The good tradeoff can be done by making some milliseconds of delay between each requests
                 // Tried  different options from 10ms to 0/1/2 ms; the optimal solution was around 4-5ms
-                Thread.Sleep(4); 
+                Thread.Sleep(4);
             }
-            return currentRPS;
+            Logger.LogInfo($"Target RPS: {targetRPS}, Current RPS: {currentRPS}");
+            //ShowStatusCodeMetrices(statusCodeDictionary);
         }
+
+        private static void ShowStatusCodeMetrices(Dictionary<string, int> statusCodeDictionary)
+        {
+            StringBuilder str = new StringBuilder("METRICES: ");
+            foreach (KeyValuePair<string, int> kvp in statusCodeDictionary)
+            {
+                str.Append(kvp.Key + ":" + kvp.Value + " ");
+            }
+            Logger.LogInfo(str.ToString());
+        }
+
         private static void PerformASyncOperation(AwsLoadGeneratorService awsService)
         {
             RequestData requestData = DataFactory.GenerateMockData();
             Logger.Debug($"REQUEST: {requestData}");
-            Task.Run(async () =>
-            {
-                await awsService.SendRequestAsync(requestData);
-            }).GetAwaiter().GetResult();
+            var result = awsService.SendRequestAsync(requestData);
 
             // INFO: No requirement to return the content results
             //var result = awsService.SendRequestAsync(requestData);
@@ -68,6 +84,18 @@ namespace mParticle.LoadGenerator
             //}
         }
 
+        // WIP: Store the all metrices for the response status codes
+        // Currently disabled, as it introduced lots of lagging
+        private static Dictionary<int, int> GetEmptyHttpStatusCodeDictionary()
+        {
+            Dictionary<int, int> dict = new Dictionary<int, int>();
+            dict.Add(200, 0);
+            dict.Add(429, 0);
+            dict.Add(500, 0);
+            dict.Add(301, 0);
+            dict.Add(301, 0);
+            return dict;
+        }
 
         // This is just provided as a Proof of Concept to observe the synchronous call behavior
         // Need to call this method 'PerformSyncOperation(awsService);' from Start() method
@@ -76,7 +104,7 @@ namespace mParticle.LoadGenerator
             RequestData requestData = DataFactory.GenerateMockData();
             Logger.Debug($"REQUEST: {requestData}");
             var content = awsService.SendRequest(requestData);
-            if(content != null)
+            if (content != null)
             {
                 Logger.Debug($"RESPONSE: [{content}]");
                 // ResponseData responseData = JsonConvert.DeserializeObject<ResponseData>(content);

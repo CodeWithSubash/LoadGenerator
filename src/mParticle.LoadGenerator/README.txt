@@ -69,7 +69,7 @@ OBSERVATIONS on RPS:
 (2) TaskCanceledException (See exception1 below) [Set the higher timeout i.e. 30secs]
 (3) 80 RPS (Implemented with Thread.Sleep(10) between each requests)
 (4) 110+ RPS 99% success 110-120 RPS (Use Thread.Sleep(7))
-(5) 140+ RPS 90% Success, 10% Failure (Use Thread.Sleep(5)) - See Exception2
+(5) 160+ RPS 90% Success, 10% Failure (Use Thread.Sleep(4/5)) - See Exception2
 (6) 140+ RPS 10% Success, 90% Failure (No Thread or, Thread.Sleep(1)) - See Exception2
 
 
