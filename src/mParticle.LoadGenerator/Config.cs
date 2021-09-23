@@ -39,6 +39,12 @@ namespace mParticle.LoadGenerator
             }
         }
 
+        // Overriding toString to be able to print out the object in a readable way
+        public override string ToString()
+        {
+            return $"[ServerUrl: {ServerURL}, TargetRPS: {TargetRPS}, AuthKey: {AuthKey}, UserName: {UserName}]";
+        }
+
         internal static Config ParseArguments(string argumentsText)
         {
             bool success = true;

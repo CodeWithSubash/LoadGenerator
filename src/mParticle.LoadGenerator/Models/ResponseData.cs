@@ -1,6 +1,4 @@
 ﻿
-using System;
-
 namespace mParticle.LoadGenerator.Models
 {
     public class ResponseData

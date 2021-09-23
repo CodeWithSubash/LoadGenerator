@@ -1,7 +1,4 @@
-﻿using System;
-using System.Text;
-
-namespace mParticle.Core
+﻿namespace mParticle.Core
 {
     public class GlobalConstants
     {

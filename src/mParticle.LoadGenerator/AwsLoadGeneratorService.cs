@@ -2,9 +2,11 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+
+using Newtonsoft.Json;
+
 using mParticle.Core;
 using mParticle.LoadGenerator.Models;
-using Newtonsoft.Json;
 
 namespace mParticle.LoadGenerator
 {
@@ -30,7 +32,6 @@ namespace mParticle.LoadGenerator
             try
             {
                 HttpResponseMessage response = await httpClient.PostAsync(httpClient.BaseAddress, GetSerializedContent(requestData));
-                Logger.Debug($"REQUEST: {requestData}");
                 if (response.IsSuccessStatusCode)
                 {
                     Logger.Debug($"Successful response received for request to AWS API: '{httpClient.BaseAddress}'");
@@ -55,12 +56,10 @@ namespace mParticle.LoadGenerator
             try
             {
                 var response = httpClient.PostAsync(httpClient.BaseAddress, GetSerializedContent(requestData));
-                Logger.Debug($"REQUEST: {requestData}");
                 if (response != null && response.Result.IsSuccessStatusCode)
                 {
                     Logger.Debug($"Successful response received for request to AWS API: '{httpClient.BaseAddress}'");
                     var content = response.Result.Content.ReadAsStringAsync().Result;
-                    Logger.Debug($"RESPONSE: [{content}]");
                     return content;
                 }
                 else

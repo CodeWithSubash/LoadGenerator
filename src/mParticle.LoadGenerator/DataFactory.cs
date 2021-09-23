@@ -1,4 +1,5 @@
 ﻿using System;
+
 using mParticle.LoadGenerator.Models;
 
 namespace mParticle.LoadGenerator
